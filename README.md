@@ -1,18 +1,23 @@
-# Heart Disease Detection using Decision Trees
+# Heart Disease Detection using Decision Trees and XGBoost
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1xJSWtuuIxKvq5-ZcQG7btZZC0L8tt6XU#scrollTo=qlOyZdxdSow7)
 
 ---
 
 ## 📌 Project Overview
-This project implements a **Decision Tree classifier** to predict the likelihood of heart disease using patient health attributes. The goal is to explore supervised machine learning in a healthcare setting and create an interpretable model that highlights important medical risk factors.
+This project applies **machine learning** to predict the likelihood of heart disease based on patient health attributes.  
+Two models were implemented:  
+- A **Decision Tree Classifier (Scikit-learn)** for interpretability  
+- An **XGBoost Classifier** for higher accuracy  
+
+The goal is to explore the trade-off between interpretability and predictive power in medical applications.
 
 ---
 
 ## 🧠 Key Concepts
-- **Decision Trees**: Used for interpretable classification.  
-- **Supervised Learning**: Model trained on labeled patient records.  
-- **Evaluation Metrics**: Accuracy, precision, recall, and confusion matrix.  
+- **Decision Trees (Scikit-learn)**: Simple, interpretable flowchart-based classifier.  
+- **XGBoost**: Gradient boosting algorithm known for high accuracy and efficiency.  
+- **Evaluation Metrics**: Accuracy, precision, recall, confusion matrix, feature importance.  
 
 ---
 
@@ -43,13 +48,13 @@ The dataset contains medical records with features such as:
    - Split into train/test sets  
 
 2. **Model Training**  
-   - Train a Decision Tree Classifier  
-   - Visualize the decision tree  
+   - **Decision Tree Classifier (Scikit-learn)**  
+   - **XGBoost Classifier** (optimized for performance)  
 
-3. **Evaluation**  
-   - Accuracy score  
-   - Confusion matrix  
-   - Feature importance  
+3. **Model Evaluation**  
+   - Compare Decision Tree vs. XGBoost  
+   - Accuracy scores and confusion matrices  
+   - Feature importance visualization  
 
 ---
 
