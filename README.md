@@ -1,63 +1,60 @@
 # Heart Disease Detection using Decision Trees
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1xJSWtuuIxKvq5-ZcQG7btZZC0L8tt6XU#scrollTo=qlOyZdxdSow7)
+
+---
+
 ## 📌 Project Overview
-This project implements a **Decision Tree classifier** to predict the likelihood of heart disease based on patient health attributes. The goal is to apply supervised machine learning techniques to medical data and build an interpretable model that can assist in identifying high-risk individuals.
+This project implements a **Decision Tree classifier** to predict the likelihood of heart disease using patient health attributes. The goal is to explore supervised machine learning in a healthcare setting and create an interpretable model that highlights important medical risk factors.
 
 ---
 
 ## 🧠 Key Concepts
-- **Decision Trees**: A flowchart-like structure that splits data into branches based on feature values, making classification results interpretable.
-- **Supervised Learning**: The model is trained on labeled data (patients with and without heart disease).
-- **Evaluation Metrics**: Accuracy, precision, recall, and confusion matrix are used to assess performance.
+- **Decision Trees**: Used for interpretable classification.  
+- **Supervised Learning**: Model trained on labeled patient records.  
+- **Evaluation Metrics**: Accuracy, precision, recall, and confusion matrix.  
 
 ---
 
 ## 📂 Dataset
-The dataset contains patient medical records with features such as:
+The dataset contains medical records with features such as:
 - Age  
 - Sex  
 - Chest Pain Type  
-- Resting Blood Pressure  
+- Blood Pressure  
 - Serum Cholesterol  
 - Fasting Blood Sugar  
 - Resting ECG Results  
 - Maximum Heart Rate Achieved  
 - Exercise-Induced Angina  
 - ST Depression Induced by Exercise  
-- Slope of the Peak Exercise ST Segment  
-- Number of Major Vessels Colored by Fluoroscopy  
+- Slope of ST Segment  
+- Number of Major Vessels (Fluoroscopy)  
 - Thalassemia Result  
 
-**Target variable**: Presence (1) or absence (0) of heart disease.
+**Target variable** → Presence (1) or Absence (0) of heart disease.
 
 ---
 
-## ⚙️ Implementation Steps
+## ⚙️ Workflow
 1. **Data Preprocessing**  
    - Handle missing values  
-   - Normalize/scale features (if required)  
    - Encode categorical variables  
+   - Split into train/test sets  
 
 2. **Model Training**  
-   - Split dataset into **training** and **testing** sets  
-   - Train a Decision Tree Classifier on training data  
+   - Train a Decision Tree Classifier  
+   - Visualize the decision tree  
 
-3. **Model Evaluation**  
-   - Evaluate accuracy on test set  
-   - Generate confusion matrix  
-   - Visualize decision tree for interpretability  
-
----
-
-## 📊 Results
-- **Accuracy**: ~ (varies depending on parameters, usually 70–80%)  
-- **Confusion Matrix**: Shows true positives, false positives, etc.  
-- **Tree Visualization**: Helps explain which health factors contribute most to predictions.  
+3. **Evaluation**  
+   - Accuracy score  
+   - Confusion matrix  
+   - Feature importance  
 
 ---
 
-## 🚀 How to Run
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/heart-disease-decision-tree.git
-   cd heart-disease-decision-tree
+## 🚀 Running on Google Colab
+1. Open the notebook by clicking the **Colab badge** above.  
+2. Install dependencies (optional, most are pre-installed on Colab):  
+   ```python
+   !pip install -r requirements.txt
