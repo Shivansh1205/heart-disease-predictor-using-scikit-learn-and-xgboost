@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Disease Predictor</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            opacity: 0;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            color: white;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.2rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .form-card, .result-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            transform: translateY(50px);
+            opacity: 0;
+        }
+
+        .form-card h2 {
+            color: #4a5568;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+            transform: scale(1.2);
+        }
+
+        .predict-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .predict-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .predict-btn:disabled {
+            background: #a0a0a0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .predict-btn .loading {
+            display: none;
+        }
+
+        .predict-btn.loading .loading {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-card {
+            text-align: center;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .result-card.hidden {
+            display: none;
+        }
+
+        .prediction-result {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .prediction-result.high-risk {
+            color: #e53e3e;
+        }
+
+        .prediction-result.low-risk {
+            color: #38a169;
+        }
+
+        .probability-bar {
+            width: 100%;
+            height: 20px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .probability-fill {
+            height: 100%;
+            transition: width 1s ease, background-color 1s ease;
+            border-radius: 10px;
+        }
+
+        .probability-text {
+            margin-top: 1rem;
+            font-size: 1.1rem;
+            color: #4a5568;
+        }
+
+        .confidence-text {
+            margin-top: 1rem;
+            font-size: 1rem;
+            color: #718096;
+        }
+
+        .disclaimer {
+            background: rgba(255, 243, 205, 0.9);
+            border-left: 4px solid #ed8936;
+            padding: 1rem;
+            margin-top: 2rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #744210;
+        }
+
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-circle {
+            position: absolute;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .form-card, .result-card {
+                padding: 1.5rem;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-elements">
+        <div class="floating-circle" style="width: 80px; height: 80px; top: 10%; left: 10%; animation-delay: 0s;"></div>
+        <div class="floating-circle" style="width: 120px; height: 120px; top: 20%; right: 15%; animation-delay: 2s;"></div>
+        <div class="floating-circle" style="width: 60px; height: 60px; bottom: 20%; left: 20%; animation-delay: 4s;"></div>
+        <div class="floating-circle" style="width: 100px; height: 100px; bottom: 10%; right: 10%; animation-delay: 1s;"></div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>❤️ Heart Disease Predictor</h1>
+            <p>Advanced ML-powered cardiovascular risk assessment</p>
+        </div>
+
+        <div class="main-content">
+            <div class="form-card">
+                <h2>Patient Information</h2>
+                <form id="predictionForm">
+                    <div class="form-group">
+                        <label for="age">Age (years)</label>
+                        <input type="number" id="age" name="age" min="20" max="120" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sex">Sex</label>
+                        <select id="sex" name="sex" required>
+                            <option value="">Select...</option>
+                            <option value="M">Male</option>
+                            <option value="F">Female</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="chest_pain_type">Chest Pain Type</label>
+                        <select id="chest_pain_type" name="chest_pain_type" required>
+                            <option value="">Select...</option>
+                            <option value="ATA">Atypical Angina</option>
+                            <option value="NAP">Non-Anginal Pain</option>
+                            <option value="ASY">Asymptomatic</option>
+                            <option value="TA">Typical Angina</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="resting_bp">Resting Blood Pressure (mm Hg)</label>
+                        <input type="number" id="resting_bp" name="resting_bp" min="80" max="220" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cholesterol">Serum Cholesterol (mg/dl)</label>
+                        <input type="number" id="cholesterol" name="cholesterol" min="100" max="600" required>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="fasting_bs" name="fasting_bs">
+                            <label for="fasting_bs">Fasting Blood Sugar > 120 mg/dl</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="resting_ecg">Resting ECG</label>
+                        <select id="resting_ecg" name="resting_ecg" required>
+                            <option value="">Select...</option>
+                            <option value="Normal">Normal</option>
+                            <option value="ST">ST-T wave abnormality</option>
+                            <option value="LVH">Left ventricular hypertrophy</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="max_hr">Maximum Heart Rate Achieved</label>
+                        <input type="number" id="max_hr" name="max_hr" min="60" max="220" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="exercise_angina">Exercise Induced Angina</label>
+                        <select id="exercise_angina" name="exercise_angina" required>
+                            <option value="">Select...</option>
+                            <option value="N">No</option>
+                            <option value="Y">Yes</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="oldpeak">Oldpeak (ST depression)</label>
+                        <input type="number" id="oldpeak" name="oldpeak" step="0.1" min="-3" max="7" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="st_slope">ST Slope</label>
+                        <select id="st_slope" name="st_slope" required>
+                            <option value="">Select...</option>
+                            <option value="Up">Upsloping</option>
+                            <option value="Flat">Flat</option>
+                            <option value="Down">Downsloping</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="predict-btn" id="predictBtn">
+                        <span class="btn-text">Predict Heart Disease Risk</span>
+                        <span class="loading">🔄</span>
+                    </button>
+                </form>
+            </div>
+
+            <div class="result-card hidden" id="resultCard">
+                <h2>Prediction Result</h2>
+                <div class="prediction-result" id="predictionResult">
+                    <!-- Result will be displayed here -->
+                </div>
+                <div class="probability-bar">
+                    <div class="probability-fill" id="probabilityFill"></div>
+                </div>
+                <div class="probability-text" id="probabilityText"></div>
+                <div class="confidence-text" id="confidenceText"></div>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>⚠️ Medical Disclaimer:</strong> This tool is for educational purposes only and should not be used as a substitute for professional medical advice, diagnosis, or treatment. Always consult with a qualified healthcare provider regarding any medical concerns.
+        </div>
+    </div>
+
+    <script>
+        // Animation setup
+        gsap.set(".header", {opacity: 0, y: -50});
+        gsap.set(".form-card", {opacity: 0, y: 50});
+        gsap.set(".result-card", {opacity: 0, x: 50});
+
+        // Animate elements on load
+        window.addEventListener('load', () => {
+            const tl = gsap.timeline();
+            
+            tl.to(".header", {duration: 1, opacity: 1, y: 0, ease: "power3.out"})
+              .to(".form-card", {duration: 1, opacity: 1, y: 0, ease: "power3.out"}, "-=0.5");
+        });
+
+        // Form handling
+        document.getElementById('predictionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('predictBtn');
+            const resultCard = document.getElementById('resultCard');
+            
+            // Show loading state
+            btn.classList.add('loading');
+            btn.disabled = true;
+            
+            // Collect form data
+            const formData = new FormData(e.target);
+            const data = {
+                age: parseInt(formData.get('age')),
+                sex: formData.get('sex'),
+                chest_pain_type: formData.get('chest_pain_type'),
+                resting_bp: parseInt(formData.get('resting_bp')),
+                cholesterol: parseInt(formData.get('cholesterol')),
+                fasting_bs: formData.has('fasting_bs'),
+                resting_ecg: formData.get('resting_ecg'),
+                max_hr: parseInt(formData.get('max_hr')),
+                exercise_angina: formData.get('exercise_angina'),
+                oldpeak: parseFloat(formData.get('oldpeak')),
+                st_slope: formData.get('st_slope')
+            };
+            
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    displayResult(result);
+                } else {
+                    throw new Error(result.error || 'Prediction failed');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error making prediction: ' + error.message);
+            } finally {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        });
+
+        function displayResult(result) {
+            const resultCard = document.getElementById('resultCard');
+            const predictionResult = document.getElementById('predictionResult');
+            const probabilityFill = document.getElementById('probabilityFill');
+            const probabilityText = document.getElementById('probabilityText');
+            const confidenceText = document.getElementById('confidenceText');
+
+            // Show result card
+            resultCard.classList.remove('hidden');
+            
+            // Display prediction
+            predictionResult.textContent = result.risk_level;
+            predictionResult.className = `prediction-result ${result.prediction === 1 ? 'high-risk' : 'low-risk'}`;
+
+            // Update probability bar
+            const probability = result.probability * 100;
+            probabilityFill.style.width = probability + '%';
+            probabilityFill.style.background = result.prediction === 1 
+                ? 'linear-gradient(90deg, #fc8181 0%, #e53e3e 100%)'
+                : 'linear-gradient(90deg, #68d391 0%, #38a169 100%)';
+
+            // Update text
+            probabilityText.textContent = `Risk Probability: ${probability.toFixed(1)}%`;
+            confidenceText.textContent = `Model Confidence: ${(result.confidence * 100).toFixed(1)}%`;
+
+            // Animate result card
+            gsap.fromTo(resultCard, 
+                {opacity: 0, x: 50}, 
+                {duration: 1, opacity: 1, x: 0, ease: "power3.out"}
+            );
+
+            // Animate probability bar
+            gsap.fromTo(probabilityFill, 
+                {width: '0%'}, 
+                {duration: 1.5, width: probability + '%', ease: "power2.out", delay: 0.5}
+            );
+
+            // Pulse effect for high risk
+            if (result.prediction === 1) {
+                predictionResult.classList.add('pulse');
+            } else {
+                predictionResult.classList.remove('pulse');
+            }
+        }
+
+        // Add hover effects to form inputs
+        document.querySelectorAll('input, select').forEach(input => {
+            input.addEventListener('focus', function() {
+                gsap.to(this, {duration: 0.3, scale: 1.02, ease: "power2.out"});
+            });
+            
+            input.addEventListener('blur', function() {
+                gsap.to(this, {duration: 0.3, scale: 1, ease: "power2.out"});
+            });
+        });
+
+        // Add floating animation to circles
+        document.querySelectorAll('.floating-circle').forEach((circle, index) => {
+            gsap.to(circle, {
+                duration: 4 + index,
+                rotation: 360,
+                repeat: -1,
+                ease: "none"
+            });
+        });
+
+        // Add sample data button for testing
+        function fillSampleData() {
+            document.getElementById('age').value = 54;
+            document.getElementById('sex').value = 'M';
+            document.getElementById('chest_pain_type').value = 'NAP';
+            document.getElementById('resting_bp').value = 140;
+            document.getElementById('cholesterol').value = 289;
+            document.getElementById('fasting_bs').checked = false;
+            document.getElementById('resting_ecg').value = 'Normal';
+            document.getElementById('max_hr').value = 162;
+            document.getElementById('exercise_angina').value = 'N';
+            document.getElementById('oldpeak').value = 0;
+            document.getElementById('st_slope').value = 'Up';
+        }
+
+        // Add sample data button
+        const sampleBtn = document.createElement('button');
+        sampleBtn.textContent = 'Fill Sample Data';
+        sampleBtn.type = 'button';
+        sampleBtn.style.cssText = `
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        `;
+        sampleBtn.addEventListener('click', fillSampleData);
+        sampleBtn.addEventListener('mouseover', () => {
+            sampleBtn.style.background = 'rgba(255,255,255,0.3)';
+        });
+        sampleBtn.addEventListener('mouseout', () => {
+            sampleBtn.style.background = 'rgba(255,255,255,0.2)';
+        });
+
+        document.querySelector('.form-card h2').after(sampleBtn);
+    </script>
+</body>
+</html>
