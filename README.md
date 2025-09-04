@@ -4,6 +4,8 @@
 
 ---
 
+## deployed link -> https://heart-disease-predictor-ft20.onrender.com/
+
 ## 📌 Project Overview
 This project applies **machine learning** to predict the likelihood of heart disease based on patient health attributes.  
 Two models were implemented:  
